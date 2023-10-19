@@ -1,14 +1,7 @@
 package com.example.registroapp.data.remote.dto
 
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-
-
+import retrofit2.http.*
 interface ClientesApi{
     @GET("/api/Clientes")
     suspend fun getClientes(): List<ClienteDto>
