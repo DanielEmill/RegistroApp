@@ -16,9 +16,9 @@ class ClienteRepositoryImp @Inject constructor(
         try {
             emit(Resource.Loading()) //indicar que estamos cargando
 
-            val ticket = api.getClientes() //descarga los cliente de internet, se supone quedemora algo
+            val cliente = api.getClientes() //descarga los cliente de internet, se supone quedemora algo
 
-            emit(Resource.Success(ticket)) //indicar que se cargo correctamente
+            emit(Resource.Success(cliente)) //indicar que se cargo correctamente
         } catch (e: HttpException) {
             //error general HTTP
             emit(Resource.Error(e.message ?: "Error HTTP GENERAL"))
@@ -32,10 +32,10 @@ class ClienteRepositoryImp @Inject constructor(
         try {
             emit(Resource.Loading()) //indicar que estamos cargando
 
-            val tickets =
+            val clientes =
                 api.getClientesId(id) //descagar la lista de cliente por el id
 
-            emit(Resource.Success(tickets)) //indicar que se cargo correctamente
+            emit(Resource.Success(clientes)) //indicar que se cargo correctamente
         } catch (e: HttpException) {
             //error general HTTP
             emit(Resource.Error(e.message ?: "Error HTTP GENERAL"))
