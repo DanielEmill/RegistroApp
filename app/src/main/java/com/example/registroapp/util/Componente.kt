@@ -1,7 +1,10 @@
 package com.example.registroapp.util
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,6 +17,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -21,6 +27,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.registroapp.ui.clienteUI.ClienteApiViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -111,4 +119,27 @@ fun CustomNumericalOutlinedTextField(
 @Composable
 fun MyBar() {
     TopAppBar(title = { Text(text = "Registro Cliente") })
+}
+@Composable
+fun Buttonbar(navController: NavHostController) {
+    BottomAppBar(modifier = Modifier
+        .fillMaxWidth()
+        .background(Color.Black), content = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            IconButton(onClick = {
+                navController.navigate("consultaClientes")
+            }) {
+                Icon(
+                    imageVector = Icons.Default.List,
+                    contentDescription = "Consultar Clientes",
+                    tint = Color.White
+                )
+            }
+        }
+    })
 }

@@ -10,8 +10,11 @@ import com.example.registroapp.data.repository.ClienteRepositoryImp
 import com.example.registroapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,11 +24,13 @@ data class ClienteListState(
     val clientes: List<ClienteDto> = emptyList(),
     val error: String = ""
 )
+
 data class ClienteState(
     val isLoading: Boolean = false,
     val cliente: ClienteDto? = null,
     val error: String = ""
 )
+
 @HiltViewModel
 class ClienteApiViewModel @Inject constructor(
     private val clienteRepository: ClienteRepositoryImp
@@ -36,22 +41,37 @@ class ClienteApiViewModel @Inject constructor(
     var direccion by mutableStateOf("")
     var limiteCredito by mutableStateOf(1)
 
+    var isValidNombre by mutableStateOf(true)
+    var isValidRnc by mutableStateOf(true)
+    var isValidDireccion by mutableStateOf(true)
+    var isValidLimiteCredito by mutableStateOf(true)
+    private fun isValid(): Boolean {
+        isValidNombre = nombres.isNotBlank()
+        isValidRnc = rnc.isNotBlank()
+        isValidDireccion = direccion.isNotBlank()
+        isValidLimiteCredito = limiteCredito > 0
+        return isValidNombre && isValidRnc && isValidDireccion && isValidLimiteCredito
+    }
+
     var uiState = MutableStateFlow(ClienteListState())
         private set
     var uiStateCliente = MutableStateFlow(ClienteState())
         private set
 
+    //
     init {
         clienteRepository.getClientes().onEach { result ->
             when (result) {
                 is Resource.Loading -> {
                     uiState.update { it.copy(isLoading = true) }
                 }
+
                 is Resource.Success -> {
                     uiState.update {
                         it.copy(clientes = result.data ?: emptyList())
                     }
                 }
+
                 is Resource.Error -> {
                     uiState.update { it.copy(error = result.message ?: "Error desconocido") }
                 }
@@ -75,14 +95,16 @@ class ClienteApiViewModel @Inject constructor(
 
     fun postCliente() {
         viewModelScope.launch {
-            clienteRepository.postCliente(
-                ClienteDto(
-                    nombres = nombres,
-                    rnc = rnc,
-                    direccion = direccion,
-                    limiteCredito = limiteCredito
+            if (isValid()) {
+                clienteRepository.postCliente(
+                    ClienteDto(
+                        nombres = nombres,
+                        rnc = rnc,
+                        direccion = direccion,
+                        limiteCredito = limiteCredito
+                    )
                 )
-            )
+            }
         }
     }
 
