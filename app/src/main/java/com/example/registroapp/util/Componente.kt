@@ -21,7 +21,30 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.example.registroapp.ui.clienteUI.ClienteApiViewModel
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun SaveButton(viewModel: ClienteApiViewModel) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    OutlinedButton(
+        onClick = {
+            viewModel.postCliente()
+            keyboardController?.hide()
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.AddCircle,
+                contentDescription = "Guardar"
+            )
+            Text(text = "Guardar")
+        }
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomOutlinedTextField(
