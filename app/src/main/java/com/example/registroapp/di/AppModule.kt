@@ -21,17 +21,20 @@ abstract class RepositoryModule {
     abstract fun bindOcupacionRepository(impl: ClienteRepositoryImp): ClienteRepository
 }
 
-@Singleton
-@Provides
-fun providesMoshi(): Moshi {
-    return Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-}
+@Module
+@InstallIn(SingletonComponent::class)
+object RetrofitModule {
+    @Singleton
+    @Provides
+    fun providesMoshi(): Moshi {
+        return Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+    }
 
-@Singleton
-@Provides
-fun providesMiClientesApi(moshi: Moshi): ClientesApi {
-    return Retrofit.Builder().baseUrl("https://miclientesapi.azurewebsites.net")
-        .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
-        .create(ClientesApi::class.java)
+    @Singleton
+    @Provides
+    fun providesMiClientesApi(moshi: Moshi): ClientesApi {
+        return Retrofit.Builder().baseUrl("https://miclientesapi.azurewebsites.net")
+            .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
+            .create(ClientesApi::class.java)
+    }
 }
-

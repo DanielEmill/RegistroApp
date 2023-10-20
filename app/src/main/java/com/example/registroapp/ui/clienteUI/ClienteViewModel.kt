@@ -58,6 +58,11 @@ class ClienteApiViewModel @Inject constructor(
     var uiStateCliente = MutableStateFlow(ClienteState())
         private set
 
+    val clientes: StateFlow<Resource<List<ClienteDto>>> = clienteRepository.getClientes().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = Resource.Loading()
+    )
     //
     init {
         clienteRepository.getClientes().onEach { result ->
@@ -81,29 +86,33 @@ class ClienteApiViewModel @Inject constructor(
 
     fun putCliente() {
         viewModelScope.launch {
-            clienteRepository.putCliente(
-                clienteId, ClienteDto(
-                    clienteId = clienteId,
-                    nombres = nombres,
-                    rnc = rnc,
-                    direccion = direccion,
-                    limiteCredito = limiteCredito
-                )
+            val clienteDto = ClienteDto(
+                clienteId = clienteId,
+                nombres = nombres,
+                rnc = rnc,
+                direccion = direccion,
+                limiteCredito = limiteCredito
             )
+            clienteRepository.putCliente(clienteId, clienteDto)
+            limpiar()
         }
     }
 
     fun postCliente() {
         viewModelScope.launch {
             if (isValid()) {
-                clienteRepository.postCliente(
-                    ClienteDto(
-                        nombres = nombres,
-                        rnc = rnc,
-                        direccion = direccion,
-                        limiteCredito = limiteCredito
-                    )
+                println("Guardando cliente...")
+                val clienteDto = ClienteDto(
+                    nombres = nombres,
+                    rnc = rnc,
+                    direccion = direccion,
+                    limiteCredito = limiteCredito
                 )
+                clienteRepository.postCliente(clienteDto)
+                limpiar()
+                println("Cliente guardado!")
+            } else {
+                println("Datos de cliente no son válidos.")
             }
         }
     }

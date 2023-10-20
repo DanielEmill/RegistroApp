@@ -10,6 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.registroapp.ui.clienteUI.ClienteConsultascreen
+import com.example.registroapp.ui.clienteUI.clienteScreen
 import com.example.registroapp.ui.theme.RegistroAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +29,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
+                    val navController = rememberNavController()
+                    NavHost(navController, startDestination = "RegisterClients") {
+                        composable("RegisterClients") {
+                            clienteScreen(navController)
+                        }
+                        composable("consultaClientes") {
+                            ClienteConsultascreen(navController)
+                        }
+                    }
                 }
             }
         }
