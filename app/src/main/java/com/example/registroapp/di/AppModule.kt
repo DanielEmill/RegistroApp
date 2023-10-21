@@ -13,14 +13,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
-
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
-    @Binds
-    abstract fun bindOcupacionRepository(impl: ClienteRepositoryImp): ClienteRepository
-}
-
 @Module
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
@@ -33,7 +25,7 @@ object RetrofitModule {
     @Singleton
     @Provides
     fun providesMiClientesApi(moshi: Moshi): ClientesApi {
-        return Retrofit.Builder().baseUrl("https://miclientesapi.azurewebsites.net")
+        return Retrofit.Builder().baseUrl("http://miclienteapiandroid.somee.com")
             .addConverterFactory(MoshiConverterFactory.create(moshi)).build()
             .create(ClientesApi::class.java)
     }
