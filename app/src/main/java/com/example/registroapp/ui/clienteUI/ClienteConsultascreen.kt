@@ -122,7 +122,7 @@ fun ClienteCard(cliente: ClienteDto, viewModel: ClienteApiViewModel) {
         )
         OutlinedButton(
             onClick = {
-                cliente.clienteId?.let { viewModel.deleteCliente(it, cliente) }
+                cliente.clienteId?.let { viewModel.deleteCliente(it) }
             }, modifier = Modifier.align(Alignment.End)
         ) {
             Text(text = "Eliminar")

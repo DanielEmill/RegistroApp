@@ -16,5 +16,5 @@ interface ClientesApi{
     suspend fun putClientes(@Path("id") id: Int, @Body clienteDto: ClienteDto): Response<Unit>
 
     @DELETE("/api/Clientes/{id}")
-    suspend fun deleteClientes(@Path("id") id: Int, @Body clienteDto: ClienteDto): Response<Unit>
+    suspend fun deleteClientes(@Path("id") id: Int): Response<Unit>
 }

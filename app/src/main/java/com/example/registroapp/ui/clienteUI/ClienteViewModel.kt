@@ -117,11 +117,12 @@ class ClienteApiViewModel @Inject constructor(
         }
     }
 
-    fun deleteCliente(clienteId: Int, clienteDto: ClienteDto) {
+    fun deleteCliente(clienteId: Int) {
         viewModelScope.launch {
-            clienteRepository.deleteClientes(clienteId, clienteDto)
+            clienteRepository.deleteClientes(clienteId)
         }
     }
+
 
     fun limpiar() {
         nombres = ""

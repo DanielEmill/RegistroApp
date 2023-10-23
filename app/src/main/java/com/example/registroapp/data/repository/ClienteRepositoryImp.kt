@@ -48,9 +48,10 @@ class ClienteRepositoryImp @Inject constructor(
     override suspend fun putCliente(id: Int, clienteDto: ClienteDto) {
         api.putClientes(id, clienteDto)
     }
-    override suspend fun deleteClientes(id: Int, clienteDto: ClienteDto){
-        api.deleteClientes(id, clienteDto)
+    override suspend fun deleteClientes(id: Int) {
+        api.deleteClientes(id)
     }
+
     override suspend fun postCliente(clienteDto: ClienteDto) {
         api.postClientes(clienteDto)
     }

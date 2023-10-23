@@ -12,7 +12,7 @@ interface ClienteRepository {
 
     suspend fun putCliente(id: Int, clienteDto: ClienteDto)
 
-    suspend fun deleteClientes(id: Int, clienteDto: ClienteDto)
+    suspend fun deleteClientes(id: Int)
 
     suspend fun postCliente(clienteDto: ClienteDto)
 }
