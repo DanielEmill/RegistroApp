@@ -28,13 +28,12 @@ import com.example.registroapp.data.remote.dto.ClienteDto
 import com.example.registroapp.util.Resource
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ClienteConsultascreen(
     navController: NavHostController, viewModel: ClienteApiViewModel =
         hiltViewModel()
 ) {
-    val clientesResource by viewModel.clientes.collectAsState(initial = Resource.Loading())
+    val uiState by viewModel.uiState
 
     Scaffold(topBar = {
         TopAppBar(
@@ -47,34 +46,32 @@ fun ClienteConsultascreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            when (val result = clientesResource) {
-                is Resource.Loading -> {
-                    // Mostrar un indicador de carga
+            when {
+                uiState.isLoading -> {
                     CircularProgressIndicator()
                 }
-                is Resource.Success -> {
-                    val clientes = result.data
-                    if (clientes != null) {
-                        Text(
-                            text = "Lista (${clientes.size} registros):",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                    // Llama a la función ClientesList que se encargará de mostrar la lista de clientes
-                    if (clientes != null) {
-                        ClientesList(clientes, viewModel)
-                    }
+                uiState.error.isNotEmpty() -> {
+                    Text(text = "Error: ${uiState.error}")
                 }
-                is Resource.Error -> {
-                    // Mostrar un mensaje de error
-                    Text(text = "Error: ${result.message}")
+                uiState.clientes.isEmpty() -> {
+                    Text(text = "No hay clientes en la lista.")
+                }
+                else -> {
+                    val clientes = uiState.clientes
+                    Text(
+                        text = "Lista (${clientes.size} registros):",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    ClientesList(clientes, viewModel)
                 }
             }
         }
     })
 }
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientesList(clientes: List<ClienteDto>, viewModel: ClienteApiViewModel) {
@@ -127,5 +124,6 @@ fun ClienteCard(cliente: ClienteDto, viewModel: ClienteApiViewModel) {
         ) {
             Text(text = "Eliminar")
         }
+
     }
 }

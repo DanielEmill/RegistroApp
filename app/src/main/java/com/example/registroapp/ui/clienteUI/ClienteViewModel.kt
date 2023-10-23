@@ -1,5 +1,6 @@
 package com.example.registroapp.ui.clienteUI
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -53,39 +55,32 @@ class ClienteApiViewModel @Inject constructor(
         return isValidNombre && isValidRnc && isValidDireccion && isValidLimiteCredito
     }
 
-    var uiState = MutableStateFlow(ClienteListState())
-        private set
-    var uiStateCliente = MutableStateFlow(ClienteState())
-        private set
+    private val _uiState = mutableStateOf(ClienteListState())
+    val uiState: State<ClienteListState> = _uiState
+    private val _uiStateCliente = mutableStateOf(ClienteState())
+    val uiStateCliente: State<ClienteState> = _uiStateCliente
 
-    val clientes: StateFlow<Resource<List<ClienteDto>>> = clienteRepository.getClientes().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = Resource.Loading()
-    )
-    //
     init {
         clienteRepository.getClientes().onEach { result ->
             when (result) {
                 is Resource.Loading -> {
-                    uiState.update { it.copy(isLoading = true) }
+                    _uiState.value = ClienteListState(isLoading = true)
                 }
 
                 is Resource.Success -> {
-                    uiState.update {
-                        it.copy(clientes = result.data ?: emptyList())
-                    }
+                    _uiState.value = ClienteListState(clientes = result.data ?: emptyList())
                 }
 
                 is Resource.Error -> {
-                    uiState.update { it.copy(error = result.message ?: "Error desconocido") }
+                    _uiState.value = ClienteListState(error = result.message ?: "Error desconocido")
                 }
             }
         }.launchIn(viewModelScope)
     }
-
     fun putCliente() {
         viewModelScope.launch {
+            _uiStateCliente.value = _uiStateCliente.value.copy(isLoading = true)
+
             val clienteDto = ClienteDto(
                 clienteId = clienteId,
                 nombres = nombres,
@@ -93,8 +88,16 @@ class ClienteApiViewModel @Inject constructor(
                 direccion = direccion,
                 limiteCredito = limiteCredito
             )
-            clienteRepository.putCliente(clienteId, clienteDto)
-            limpiar()
+
+            try {
+                clienteRepository.putCliente(clienteId, clienteDto)
+                limpiar()
+                _uiStateCliente.value = _uiStateCliente.value.copy(cliente = clienteDto)
+            } catch (e: Exception) {
+                _uiStateCliente.value = _uiStateCliente.value.copy(error = e.message ?: "Error desconocido")
+            } finally {
+                _uiStateCliente.value = _uiStateCliente.value.copy(isLoading = false)
+            }
         }
     }
 
@@ -102,15 +105,27 @@ class ClienteApiViewModel @Inject constructor(
         viewModelScope.launch {
             if (isValid()) {
                 println("Guardando cliente...")
+
+                _uiStateCliente.value = _uiStateCliente.value.copy(isLoading = true)
+
                 val clienteDto = ClienteDto(
                     nombres = nombres,
                     rnc = rnc,
                     direccion = direccion,
                     limiteCredito = limiteCredito
                 )
-                clienteRepository.postCliente(clienteDto)
-                limpiar()
-                println("Cliente guardado!")
+
+                try {
+                    clienteRepository.postCliente(clienteDto)
+                    limpiar()
+                    _uiStateCliente.value = _uiStateCliente.value.copy(cliente = clienteDto)
+                    println("Cliente guardado!")
+                } catch (e: Exception) {
+                    _uiStateCliente.value = _uiStateCliente.value.copy(error = e.message ?: "Error desconocido")
+                } finally {
+                    _uiStateCliente.value = _uiStateCliente.value.copy(isLoading = false)
+                }
+
             } else {
                 println("Datos de cliente no son válidos.")
             }
@@ -119,9 +134,19 @@ class ClienteApiViewModel @Inject constructor(
 
     fun deleteCliente(clienteId: Int) {
         viewModelScope.launch {
-            clienteRepository.deleteClientes(clienteId)
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            try {
+                clienteRepository.deleteClientes(clienteId)
+
+                val clientesActualizados = clienteRepository.getClientes().first()
+                _uiState.value = _uiState.value.copy(clientes = clientesActualizados.data ?: emptyList(), isLoading = false)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = e.message ?: "Error desconocido", isLoading = false)
+            }
         }
     }
+
 
 
     fun limpiar() {
